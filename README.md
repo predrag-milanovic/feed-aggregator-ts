@@ -50,3 +50,46 @@ node --version
 # Prints: v22.15.0
 ```
 
+After you checked the correct version of `node`, from the root of your repository, run `npm init -y` to create a new Node.js project.
+
+Add **TypeScript** along with types for `node`, and [tsx (TypeScript Execute)](https://github.com/privatenumber/tsx) which will allow you to run TypeScript files directly in Node.js:
+
+```bash
+npm install -D typescript @types/node tsx
+```
+
+Configure **TypeScript** by creating a `tsconfig.json` file in the root of the project:
+
+```bash
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "target": "esnext",
+    "module": "esnext",
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "strict": true,
+    "moduleResolution": "Node",
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  "include": ["./src/**/*.ts"],
+  "exclude": ["node_modules"]
+}
+```
+
+Configure the `package.json` in the root of the project:
+
+- Add `"type":"module"`,
+- Add a `start` script that runs `tsx ./src/index.ts`:
+
+```bash
+{
+...
+  "type": "module",
+  "scripts": {
+    "start": "tsx ./src/index.ts"
+  },
+...
+}
+```

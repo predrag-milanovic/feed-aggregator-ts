@@ -1,0 +1,32 @@
+{
+  "name": "feed-aggregator-ts",
+  "version": "1.0.0",
+  "description": "The Blog Aggregator is a type-safe [RSS](https://en.wikipedia.org/wiki/RSS) feed aggregator built with TypeScript and a PostgreSQL database. It functions as a CLI tool that runs continuously in the background, fetching the latest content from your favorite blogs, news sites, and podcasts. By storing all posts in a central database, it provides a fast, terminal-based interface for catching up on updates without the need for a browser or a third-party service. It's a hands-on project designed for backend integration, database management, and long-running processes in a Node.js environment.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "tsx ./src/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://predrag-milanovic@github.com/predrag-milanovic/feed-aggregator-ts.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/predrag-milanovic/feed-aggregator-ts/issues"
+  },
+  "homepage": "https://github.com/predrag-milanovic/feed-aggregator-ts#readme",
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "esbuild": "^0.25.9",
+    "get-tsconfig": "^4.10.1",
+    "resolve-pkg-maps": "^1.0.0",
+    "undici-types": "^7.10.0"
+  }
+}
