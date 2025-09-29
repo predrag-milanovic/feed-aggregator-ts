@@ -93,3 +93,7 @@ Configure the `package.json` in the root of the project:
 ...
 }
 ```
+
+We'll use a single [JSON](https://www.json.org/json-en.html) file to keep track of two things:
+- Who is currently logged in,
+- The connection credentials for the PostgreSQL database.
