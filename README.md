@@ -2,7 +2,7 @@
 
 ## ℹ️ About
 
-The Blog Aggregator is a type-safe [RSS](https://en.wikipedia.org/wiki/RSS) feed aggregator built with TypeScript and a PostgreSQL database.
+The Blog Aggregator is a type-safe [RSS](https://en.wikipedia.org/wiki/RSS) feed aggregator built with TypeScript and a [PostgreSQL](https://www.postgresql.org/) database.
 It functions as a CLI tool that runs continuously in the background, fetching the latest content from your favorite blogs, news sites, and podcasts.
 By storing all posts in a central database, it provides a fast, terminal-based interface for catching up on updates without the need for a browser or a third-party service.
 It's a hands-on project designed for backend integration, database management, and long-running processes in a Node.js environment.
@@ -97,3 +97,50 @@ Configure the `package.json` in the root of the project:
 We'll use a single [JSON](https://www.json.org/json-en.html) file to keep track of two things:
 - Who is currently logged in,
 - The connection credentials for the PostgreSQL database.
+
+Postgres, like most other database technologies, is itself a server.
+It listens for requests on a port (Postgres' default is `:5432`), and responds to those requests.
+To interact with Postgres, first you will install the server and start it. Then, you can connect to it using a client like [psql](https://www.postgresql.org/docs/current/app-psql.html#:~:text=psql%20is%20a%20terminal%2Dbased,or%20from%20command%20line%20arguments.) or [PGAdmin](https://www.pgadmin.org/).
+
+[Install](https://learn.microsoft.com/en-us/windows/wsl/tutorials/wsl-database#install-postgresql) Postgres:
+```bash
+# Linux / WSL (Debian)
+sudo apt update
+sudo apt install postgresql postgresql-contrib
+```
+
+```bash
+# Ensure the installation worked
+psql --version
+```
+
+```bash
+# Update postgres password
+sudo passwd postgres
+```
+
+```bash
+# Start the Postgres server in the background
+sudo service postgresql start
+```
+
+Connect to the server. I recommend simply using the `psql` client. It's the "default" client for Postgres, and it's a great way to interact with the database. While it's not as user-friendly as a GUI like [PGAdmin](https://www.pgadmin.org/), it's a great tool to be able to do at least basic operations with.
+
+```bash
+# Enter the psql shell
+sudo -u postgres psql
+```
+
+Create and connect to the new database:
+
+```bash
+# Give the DATABASE a name
+CREATE DATABASE DATABASE_NAME;
+```
+
+```bash
+# Connect to the new database
+\c DATABASE_NAME
+```
+
+[Here](https://www.postgresql.org/docs/current/app-psql.html) you can find all psql meta-commands.
