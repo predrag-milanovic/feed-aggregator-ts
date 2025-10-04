@@ -144,3 +144,41 @@ CREATE DATABASE DATABASE_NAME;
 ```
 
 [Here](https://www.postgresql.org/docs/current/app-psql.html) you can find all psql meta-commands.
+
+[Drizzle](https://orm.drizzle.team/docs/overview) is a [ORM](https://en.wikipedia.org/wiki/Object%E2%80%93relational_mapping) and migration tool written in TypeScript and [Drizzle Kit](https://orm.drizzle.team/docs/kit-overview) is a CLI tool that will help us run our migrations and the [Postgres driver](https://github.com/porsager/postgres) allows drizzle and our program to talk to the database.
+
+```bash
+# Install drizzle, postgres and drizzle-kit
+npm i drizzle-orm postgres
+npm i -D drizzle-kit
+```
+
+Get your connection string. A connection string is just a URL with all of the information needed to connect to a database.
+Test your connection string by running `psql`, the format is:
+
+```bash
+protocol://username:password@host:port/database
+# Add the connection string to the .gatorconfig.json file instead of the example string.
+# The file should be in your home directory, ~/.gatorconfig.json.
+```
+
+When using it with `psql`, you'll use it in the format we just used.
+However, here in the config file it needs an additional `sslmode=disable` query string:
+
+```bash
+protocol://username:password@host:port/database?sslmode=disable
+# Your application code needs to know to not try to use SSL locally.
+```
+
+Run the `npx drizzle-kit` generate command to generate the migration files based on our current schema state.
+These files are created in the directory you specified in the `out` field of `drizzle.config.ts`:
+
+```bash
+npx drizzle-kit generate
+```
+
+If everything looks like it should, run the migration:
+
+```bash
+npx drizzle-kit migrate
+```
