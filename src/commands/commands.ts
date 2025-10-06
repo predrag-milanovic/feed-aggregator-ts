@@ -1,5 +1,7 @@
-// Defines the signature for all command handlers - takes command name and variable arguments
-export type CommandHandler = (cmdName: string, ...args: string[]) => void;
+export type CommandHandler = (
+  cmdName: string,
+  ...args: string[]
+) => Promise<void>;
 
 // Registry maps command names to their handler functions using Record utility type
 export type CommandsRegistry = Record<string, CommandHandler>;
@@ -14,15 +16,15 @@ export function registerCommand(
 }
 
 // Executes a command by looking it up in the registry and calling its handler
-export function runCommand(
+export async function runCommand(
   registry: CommandsRegistry,
   cmdName: string,
   ...args: string[]
-): void {
+): Promise<void> {
   const handler = registry[cmdName];
   if (!handler) {
     throw new Error(`Unknown command: ${cmdName}`);
   }
 
-  handler(cmdName, ...args);
+  await handler(cmdName, ...args);
 }

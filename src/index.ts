@@ -3,9 +3,9 @@ import {
   registerCommand,
   runCommand,
 } from "./commands/commands";
-import { handlerLogin } from "./commands/users";
+import { handlerLogin, handlerRegister } from "./commands/users";
 
-function main() {
+async function main() {
   const args = process.argv.slice(2);   // Isolates user-provided arguments
 
   // CLI must have at least a command name
@@ -20,10 +20,11 @@ function main() {
 
   // Register available commands - this is where new commands would be added
   registerCommand(commandsRegistry, "login", handlerLogin);
+  registerCommand(commandsRegistry, "register", handlerRegister);
 
   try {
     // Execute the requested command with its arguments
-    runCommand(commandsRegistry, cmdName, ...cmdArgs);
+    await runCommand(commandsRegistry, cmdName, ...cmdArgs);
   } catch (err) {
     // Handle both Error objects and other thrown values
     if (err instanceof Error) {
@@ -33,6 +34,7 @@ function main() {
     }
     process.exit(1);    // Exit with error code for script failure
   }
+  process.exit(0);
 }
 
 main();
