@@ -29,6 +29,7 @@
   "dependencies": {
     "drizzle-orm": "^0.44.6",
     "esbuild": "^0.25.9",
+    "fast-xml-parser": "^5.3.0",
     "get-tsconfig": "^4.10.1",
     "postgres": "^3.4.7",
     "resolve-pkg-maps": "^1.0.0",

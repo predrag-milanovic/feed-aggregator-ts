@@ -11,18 +11,20 @@ It's a hands-on project designed for backend integration, database management, a
 
 The application consists of two core components working together:
 
-- A **long-running background service** that continuously polls subscribed RSS feeds for new content and stores it in a PostgreSQL database.
+- A **long-running background service** that continuously polls subscribed [RSS](https://en.wikipedia.org/wiki/RSS) feeds for new content and stores it in a PostgreSQL database.
 - A **CLI** for interacting with the aggregated data, allowing you to manage feeds and read your personalized content stream.
 
 ## ✨ Key Features
 
-- **Subscribe to Content**: Add RSS feeds from across the internet to your personal collection.
+- **Subscribe to Content**: Add [RSS](https://en.wikipedia.org/wiki/RSS) feeds from across the internet to your personal collection.
 - **Persistent Storage**: All posts are stored efficiently in a PostgreSQL database for fast querying and offline access.
 - **Social Curation**: Follow and unfollow RSS feeds that other users of the application have discovered.
 - **Terminal-Based Reading**: View concise summaries of aggregated posts directly in your terminal, complete with links to the full content.
 - **Type-Safe Database Interactions**: Leverages [Drizzle ORM](https://orm.drizzle.team/docs/overview) for robust and safe SQL queries and migrations.
 
 ## 💻 Install
+
+### NVM
 
 Install [NVM](https://github.com/nvm-sh/nvm) (preferred way to manage Node.js versions in this Project).
 
@@ -97,6 +99,8 @@ Configure the `package.json` in the root of the project:
 We'll use a single [JSON](https://www.json.org/json-en.html) file to keep track of two things:
 - Who is currently logged in,
 - The connection credentials for the PostgreSQL database.
+
+### PostgreSQL
 
 Postgres, like most other database technologies, is itself a server.
 It listens for requests on a port (Postgres' default is `:5432`), and responds to those requests.
@@ -182,3 +186,60 @@ If everything looks like it should, run the migration:
 ```bash
 npx drizzle-kit migrate
 ```
+
+### RSS
+
+The whole point of the `feed-aggegator-ts` program is to fetch the [RSS](https://en.wikipedia.org/wiki/RSS) feed of a website and store its content in a structured format in our database. That way we can display it nicely in the CLI.
+RSS is a specific structure of [XML](https://en.wikipedia.org/wiki/XML), but we will keep it simple and only worry about a few fields.
+
+Here's an example of the documents we'll parse:
+
+```bash
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+<channel>
+  <title>RSS Feed Example</title>
+  <link>https://www.example.com</link>
+  <description>This is an example RSS feed</description>
+  <item>
+    <title>First Article</title>
+    <link>https://www.example.com/article1</link>
+    <description>This is the content of the first article.</description>
+    <pubDate>Mon, 06 Sep 2021 12:00:00 GMT</pubDate>
+  </item>
+  <item>
+    <title>Second Article</title>
+    <link>https://www.example.com/article2</link>
+    <description>Here's the content of the second article.</description>
+    <pubDate>Tue, 07 Sep 2021 14:30:00 GMT</pubDate>
+  </item>
+</channel>
+</rss>
+```
+
+Then we can parse this kind of document into a JavaScript objects like this:
+
+```bash
+type RSSFeed = {
+  channel: {
+    title: string;
+    link: string;
+    description: string;
+    item: RSSItem[];
+  };
+};
+
+type RSSItem = {
+  title: string;
+  link: string;
+  description: string;
+  pubDate: string;
+};
+```
+
+If the program were running in a browser, you could use the built-in [DOMParser](https://developer.mozilla.org/en-US/docs/Web/API/DOMParser) API, but since it's in Node.js, we'll use [fast-xml-parser](https://github.com/NaturalIntelligence/fast-xml-parser/) instead:
+
+```bash
+# Install the fast-xml-parser package
+npm i fast-xml-parser
+```
+register agg command for RSS feed parsing
