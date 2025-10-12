@@ -242,4 +242,67 @@ If the program were running in a browser, you could use the built-in [DOMParser]
 # Install the fast-xml-parser package
 npm i fast-xml-parser
 ```
-register agg command for RSS feed parsing
+
+## 🚀 Quick Start
+
+After completing the installation steps above, you can start using the application:
+
+```bash
+# Register a new user
+npm run start register yourusername
+
+# Login with your user
+npm run start login yourusername
+
+# Add an RSS feed to your collection
+npm run start addfeed "WagsLane Blog" "https://www.wagslane.dev/index.xml"
+
+# List all users (shows current user)
+npm run start users
+
+# Test RSS feed parsing
+npm run start agg
+
+# Reset database (development only)
+npm run start reset
+```
+
+## ⌨️ Available Commands
+
+### User Management
+- `register <username>` - Create a new user account
+- `login <username>` - Switch to an existing user
+- `users` - List all users with current user indication
+- `reset` - Clear all users and feeds (development only)
+
+### Feed Management
+- `addfeed <name> <url>` - Add a new RSS feed to your collection
+- `agg` - Test RSS feed parsing from WagsLane.dev
+
+## 🗃️ Database Schema
+
+### Users Table
+- `id` (UUID) - Primary key with random default
+- `created_at` (TIMESTAMP) - Auto-set on creation
+- `updated_at` (TIMESTAMP) - Auto-updated on changes
+- `name` (TEXT) - Unique username
+
+### Feeds Table
+- `id` (UUID) - Primary key with random default
+- `created_at` (TIMESTAMP) - Auto-set on creation
+- `updated_at` (TIMESTAMP) - Auto-updated on changes
+- `name` (TEXT) - Feed display name
+- `url` (TEXT) - Unique RSS feed URL
+- `user_id` (UUID) - Foreign key to users with ON DELETE CASCADE
+
+## 🔧 Development
+
+The project uses a modular architecture with separate concerns:
+
+- `src/commands/` - CLI command handlers
+- `src/lib/db/` - Database schema and queries
+- `src/lib/rss.ts` - RSS feed parsing functionality
+- `src/config.ts` - Configuration management
+
+All database operations are type-safe using Drizzle ORM, and the CLI uses a flexible command registry pattern for easy extensibility.
+
