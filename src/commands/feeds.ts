@@ -2,6 +2,7 @@ import { readConfig } from "src/config";
 import { createFeed, getFeeds } from "../lib/db/queries/feeds";
 import { getUser, getUserById } from "../lib/db/queries/users";
 import { Feed, User } from "src/lib/db/schema";
+import { createFeedFollow } from '../lib/db/queries/feed-follows';
 
 export async function handlerAddFeed(cmdName: string, ...args: string[]) {
   if (args.length !== 2) {
@@ -25,6 +26,22 @@ export async function handlerAddFeed(cmdName: string, ...args: string[]) {
 
   console.log("Feed created successfully:");
   printFeed(feed, user);
+
+  // Auto-follow after creating feed
+  try {
+    const res = await createFeedFollow(user.id, feed.id);
+    if (res === 'already-following') {
+      console.log(`Already following ${feed.name}`);
+    } else {
+      console.log(`${res.feedName} followed by ${res.userName}`);
+    }
+  } catch (err: any) {
+    if (err.code === '23505') {
+      console.log(`Already following ${feed.name}`);
+    } else {
+      throw err;
+    }
+  }
 }
 
 function printFeed(feed: Feed, user: User) {
