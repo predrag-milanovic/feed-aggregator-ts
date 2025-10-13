@@ -10,7 +10,7 @@ import {
 } from "./commands/users";
 import { handlerReset } from "./commands/reset";
 import { handlerAgg } from "./commands/aggregate";
-import { handlerAddFeed } from "./commands/feeds";
+import { handlerAddFeed, handlerListFeeds } from "./commands/feeds";
 
 async function main() {
   const args = process.argv.slice(2);
@@ -30,10 +30,10 @@ async function main() {
   registerCommand(commandsRegistry, "users", handlerListUsers);
   registerCommand(commandsRegistry, "agg", handlerAgg);
   registerCommand(commandsRegistry, "addfeed", handlerAddFeed);
+  registerCommand(commandsRegistry, "feeds", handlerListFeeds);
 
   try {
     await runCommand(commandsRegistry, cmdName, ...cmdArgs);
-    process.exit(0);
   } catch (err) {
     if (err instanceof Error) {
       console.error(`Error running command ${cmdName}: ${err.message}`);
@@ -42,6 +42,7 @@ async function main() {
     }
     process.exit(1);
   }
+  process.exit(0);
 }
 
 main();
