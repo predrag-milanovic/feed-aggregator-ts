@@ -21,6 +21,7 @@ The application consists of two core components working together:
 - **Social Curation**: Follow and unfollow RSS feeds that other users of the application have discovered.
 - **Terminal-Based Reading**: View concise summaries of aggregated posts directly in your terminal, complete with links to the full content.
 - **Type-Safe Database Interactions**: Leverages [Drizzle ORM](https://orm.drizzle.team/docs/overview) for robust and safe SQL queries and migrations.
+- **Middleware for User Commands**: All commands that require a logged-in user now use a middleware pattern, ensuring DRY code and centralized user validation.
 
 ## 💻 Install
 
@@ -276,8 +277,10 @@ npm run start reset
 - `reset` - Clear all users and feeds (development only)
 
 ### Feed Management
-- `addfeed <name> <url>` - Add a new RSS feed to your collection
+- `addfeed <name> <url>` - Add a new RSS feed to your collection (requires logged-in user; uses middleware for validation)
 - `agg` - Test RSS feed parsing from WagsLane.dev
+- `follow <url>` - Follow an RSS feed by URL (requires logged-in user; uses middleware for validation)
+- `following` - List all feeds the current user is following
 
 ## 🗃️ Database Schema
 
@@ -295,14 +298,22 @@ npm run start reset
 - `url` (TEXT) - Unique RSS feed URL
 - `user_id` (UUID) - Foreign key to users with ON DELETE CASCADE
 
+### Feed Follows Table
+- `id` (UUID) - Primary key with random default
+- `created_at` (TIMESTAMP) - Auto-set on creation
+- `updated_at` (TIMESTAMP) - Auto-updated on changes
+- `user_id` (UUID) - Foreign key to users
+- `feed_id` (UUID) - Foreign key to feeds
+- Unique constraint on (`user_id`, `feed_id`)
+
 ## 🔧 Development
 
 The project uses a modular architecture with separate concerns:
 
-- `src/commands/` - CLI command handlers
+- `src/commands/` - CLI command handlers and middleware for user validation
 - `src/lib/db/` - Database schema and queries
 - `src/lib/rss.ts` - RSS feed parsing functionality
 - `src/config.ts` - Configuration management
 
-All database operations are type-safe using Drizzle ORM, and the CLI uses a flexible command registry pattern for easy extensibility.
+All database operations are type-safe using Drizzle ORM, and the CLI uses a flexible command registry pattern for easy extensibility. Middleware is used to ensure that commands requiring a logged-in user are consistently validated.
 
