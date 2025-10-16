@@ -280,6 +280,7 @@ npm run start reset
 - `addfeed <name> <url>` - Add a new RSS feed to your collection (requires logged-in user; uses middleware for validation)
 - `agg` - Test RSS feed parsing from WagsLane.dev
 - `follow <url>` - Follow an RSS feed by URL (requires logged-in user; uses middleware for validation)
+- `unfollow <url>` - Unfollow an RSS feed by URL (requires logged-in user; uses middleware for validation)
 - `following` - List all feeds the current user is following
 
 ## 🗃️ Database Schema

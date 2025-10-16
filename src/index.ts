@@ -54,6 +54,9 @@ async function main() {
   registerCommand(commandsRegistry, "following", async (_cmd) => {
     await following(_cmd);
   });
+  // Register unfollow command (requires logged-in user)
+  const { handlerUnfollow } = await import("./commands/unfollow");
+  registerCommand(commandsRegistry, "unfollow", middlewareLoggedIn(handlerUnfollow));
 
   // Run the requested command and handle errors
   try {

@@ -1,4 +1,19 @@
+import { db } from '../index';
 import { users, feeds, feedFollows } from '../schema';
+import { getFeedByUrl } from './feeds';
+import { eq, and, desc } from 'drizzle-orm';
+
+// Delete a feed follow record by userId and feed URL
+export async function deleteFeedFollowByUserAndUrl(userId: string, feedUrl: string) {
+  // Get the feed by URL
+  const feed = await getFeedByUrl(feedUrl);
+  if (!feed) return 0;
+  // Delete the feed follow record
+  const result = await db.delete(feedFollows)
+    .where(and(eq(feedFollows.userId, userId), eq(feedFollows.feedId, feed.id)));
+  // Drizzle returns number of deleted rows
+  return result;
+}
 // Create a feed follow and return join info
 export async function createFeedFollow(userId: string, feedId: string) {
   try {
@@ -35,9 +50,9 @@ export async function getFeedFollowsForUser(userId: string) {
     .orderBy(desc(feedFollows.createdAt));
   return result;
 }
-import { db } from '../index';
+// import { db } from '../index';
 // Make sure feedFollows is exported from the correct module
-import { eq, and, desc } from 'drizzle-orm';
+// import { eq, and, desc } from 'drizzle-orm';
 
 // Insert a feed follow
 export async function followFeed(userId: string, feedId: string) {
