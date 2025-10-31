@@ -39,7 +39,7 @@ async function main() {
   registerCommand(commandsRegistry, "register", handlerRegister); // Create user
   registerCommand(commandsRegistry, "reset", handlerReset);       // Reset DB
   registerCommand(commandsRegistry, "users", handlerListUsers);   // List users
-  registerCommand(commandsRegistry, "agg", handlerAgg);           // Test RSS parsing
+  registerCommand(commandsRegistry, "agg", handlerAgg);           // RSS aggregation
   registerCommand(commandsRegistry, "addfeed", middlewareLoggedIn(handlerAddFeed)); // Add feed (requires user)
   registerCommand(commandsRegistry, "feeds", handlerListFeeds);   // List feeds
   // Register follow command (requires feed URL)
@@ -57,6 +57,10 @@ async function main() {
   // Register unfollow command (requires logged-in user)
   const { handlerUnfollow } = await import("./commands/unfollow");
   registerCommand(commandsRegistry, "unfollow", middlewareLoggedIn(handlerUnfollow));
+  
+  // Register browse command (requires logged-in user)
+  const { handlerBrowse } = await import("./commands/browse");
+  registerCommand(commandsRegistry, "browse", middlewareLoggedIn(handlerBrowse));
 
   // Run the requested command and handle errors
   try {

@@ -1,6 +1,7 @@
 import { fetchFeed } from "../lib/rss";
 import { getNextFeedToFetch, markFeedFetched } from "../lib/db/queries/feeds";
-import { parseDuration } from "../lib/utils";
+import { createPost } from "../lib/db/queries/posts";
+import { parseDuration, parseRSSDate } from "../lib/utils";
 
 async function scrapeFeeds() {
   const feed = await getNextFeedToFetch();
@@ -26,11 +27,31 @@ async function scrapeFeeds() {
     
     console.log(`Found ${items.length} posts in ${feed.name}`);
     
-    // Print all post titles
+    let savedCount = 0;
+    let skippedCount = 0;
+    
+    // Save all posts to database
     for (const item of items) {
-      console.log(`- ${item.title}`);
+      const publishedAt = parseRSSDate(item.pubDate);
+      
+      const savedPost = await createPost(
+        item.title,
+        item.link,
+        item.description,
+        publishedAt,
+        feed.id
+      );
+      
+      if (savedPost) {
+        savedCount++;
+        console.log(`✓ Saved: ${item.title}`);
+      } else {
+        skippedCount++;
+        console.log(`- Skipped (already exists): ${item.title}`);
+      }
     }
     
+    console.log(`Saved ${savedCount} new posts, skipped ${skippedCount} existing posts`);
     console.log("---");
     
   } catch (error) {
