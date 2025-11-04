@@ -17,11 +17,13 @@ The application consists of two core components working together:
 ## ✨ Key Features
 
 - **Subscribe to Content**: Add [RSS](https://en.wikipedia.org/wiki/RSS) feeds from across the internet to your personal collection.
-- **Persistent Storage**: All posts are stored efficiently in a PostgreSQL database for fast querying and offline access.
+- **Continuous Aggregation**: Long-running background service that automatically fetches and stores new posts from subscribed feeds.
+- **Persistent Storage**: All posts are stored efficiently in a PostgreSQL database with deduplication and metadata preservation.
 - **Social Curation**: Follow and unfollow RSS feeds that other users of the application have discovered.
-- **Terminal-Based Reading**: View concise summaries of aggregated posts directly in your terminal, complete with links to the full content.
+- **Terminal-Based Reading**: Browse your personalized feed of posts directly in the terminal with configurable limits.
+- **Smart Scheduling**: Feeds are fetched in rotation based on when they were last updated, ensuring fair distribution.
 - **Type-Safe Database Interactions**: Leverages [Drizzle ORM](https://orm.drizzle.team/docs/overview) for robust and safe SQL queries and migrations.
-- **Middleware for User Commands**: All commands that require a logged-in user now use a middleware pattern, ensuring DRY code and centralized user validation.
+- **Middleware Architecture**: Centralized user authentication and validation for protected commands.
 
 ## 💻 Install
 
@@ -246,26 +248,47 @@ npm i fast-xml-parser
 
 ## 🚀 Quick Start
 
-After completing the installation steps above, you can start using the application:
+### Configuration Setup
+Create a config file at `~/.gatorconfig.json` in your home directory:
+
+```json
+{
+  "db_url": "postgresql://username:password@localhost:5432/your_database?sslmode=disable",
+  "current_user_name": ""
+}
+```
+
+### Database Migration
+Run the migrations to set up your database:
 
 ```bash
-# Register a new user
-npm run start register yourusername
+npx drizzle-kit generate
+npx drizzle-kit migrate
+```
 
-# Login with your user
+### Basic Usage
+
+```bash
+# 1. User Management
+npm run start register yourusername
 npm run start login yourusername
 
-# Add an RSS feed to your collection
-npm run start addfeed "WagsLane Blog" "https://www.wagslane.dev/index.xml"
+# 2. Add RSS feeds to your collection
+npm run start addfeed "TechCrunch" "https://techcrunch.com/feed/"
+npm run start addfeed "Hacker News" "https://news.ycombinator.com/rss"
+npm run start addfeed "Boot.dev Blog" "https://blog.boot.dev/index.xml"
 
-# List all users (shows current user)
-npm run start users
+# 3. Start continuous RSS aggregation (in one terminal)
+npm run start agg 30s  # Fetch feeds every 30 seconds
 
-# Test RSS feed parsing
-npm run start agg
+# 4. Browse your collected posts (in another terminal)
+npm run start browse      # Shows 2 posts by default
+npm run start browse 10   # Shows 10 posts
 
-# Reset database (development only)
-npm run start reset
+# 5. Manage feed subscriptions
+npm run start following   # See what you're following
+npm run start follow "https://example.com/feed"
+npm run start unfollow "https://example.com/feed"
 ```
 
 ## ⌨️ Available Commands
@@ -277,11 +300,15 @@ npm run start reset
 - `reset` - Clear all users and feeds (development only)
 
 ### Feed Management
-- `addfeed <name> <url>` - Add a new RSS feed to your collection (requires logged-in user; uses middleware for validation)
-- `agg` - Test RSS feed parsing from WagsLane.dev
-- `follow <url>` - Follow an RSS feed by URL (requires logged-in user; uses middleware for validation)
-- `unfollow <url>` - Unfollow an RSS feed by URL (requires logged-in user; uses middleware for validation)
+- `addfeed <name> <url>` - Add a new RSS feed to your collection (requires logged-in user)
+- `feeds` - List all feeds in the system
+- `follow <url>` - Follow an RSS feed by URL (requires logged-in user)
+- `unfollow <url>` - Unfollow an RSS feed by URL (requires logged-in user)
 - `following` - List all feeds the current user is following
+
+### RSS Aggregation & Browsing
+- `agg <time_between_reqs>` - Start continuous RSS feed aggregation (e.g., `agg 30s`, `agg 5m`)
+- `browse [limit]` - Browse latest posts from followed feeds (default limit: 2)
 
 ## 🗃️ Database Schema
 
@@ -307,14 +334,38 @@ npm run start reset
 - `feed_id` (UUID) - Foreign key to feeds
 - Unique constraint on (`user_id`, `feed_id`)
 
-## 🔧 Development
+### Posts Table
+- `id` (UUID) - Primary key with random default
+- `created_at` (TIMESTAMP) - Auto-set on creation
+- `updated_at` (TIMESTAMP) - Auto-updated on changes
+- `title` (TEXT) - Post title (required)
+- `url` (TEXT) - Post URL (unique, required)
+- `description` (TEXT) - Post content/description (nullable)
+- `published_at` (TIMESTAMP) - When the post was published (nullable)
+- `feed_id` (UUID) - Foreign key to feeds with ON DELETE CASCADE
+
+##  Typical Workflow
+
+1. **Setup**: Create config file, run migrations, register/login as a user
+2. **Add Feeds**: Use `addfeed` to add RSS feeds to your collection
+3. **Start Aggregation**: Run `agg 30s` in one terminal to continuously fetch posts
+4. **Browse Posts**: Use `browse` in another terminal to read your collected posts
+5. **Manage Subscriptions**: Follow/unfollow feeds as needed with `follow`/`unfollow`
+
+##  Development
 
 The project uses a modular architecture with separate concerns:
 
 - `src/commands/` - CLI command handlers and middleware for user validation
-- `src/lib/db/` - Database schema and queries
+- `src/lib/db/` - Database schema, queries, and migrations
 - `src/lib/rss.ts` - RSS feed parsing functionality
+- `src/lib/utils.ts` - Utility functions (duration parsing, RSS date parsing)
 - `src/config.ts` - Configuration management
 
-All database operations are type-safe using Drizzle ORM, and the CLI uses a flexible command registry pattern for easy extensibility. Middleware is used to ensure that commands requiring a logged-in user are consistently validated.
+**Key Features:**
+- **Type-safe Database Operations**: All queries use Drizzle ORM for compile-time safety
+- **Middleware Pattern**: User authentication handled centrally for protected commands
+- **RSS Date Parsing**: Robust parsing of various RSS date formats (RFC 2822, ISO 8601)
+- **Duplicate Prevention**: Posts are deduplicated by URL to avoid storing duplicates
+- **Graceful Shutdown**: Aggregator handles Ctrl+C for clean process termination
 
